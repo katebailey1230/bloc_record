@@ -6,7 +6,7 @@ require 'bloc_record/utility'
  
  module BlocRecord
    class Base
-     extend Persistence
+     include Persistence
 	 extend Selection
      extend Schema
      extend Connection
