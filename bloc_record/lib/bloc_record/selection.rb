@@ -2,7 +2,6 @@ require 'sqlite3'
  
  module Selection
 	 def find(*ids)
- 
      if ids.length == 1
        find_one(ids.first)
      else
@@ -16,6 +15,9 @@ require 'sqlite3'
    end	 
 
    def find_one(id)
+	if (id < 0) || (id == nil)
+		puts "That ID is not valid. Please try again."
+	else
      row = connection.get_first_row <<-SQL
        SELECT #{columns.join ","} FROM #{table}
        WHERE id = #{id};
@@ -32,6 +34,35 @@ def find_by(attribute, value)
  
      rows_to_array(rows)
    end
+
+def method_missing(method, *args, &block)
+	if method == :find_by_name
+		find_by(:name, *args[i])
+	end
+end
+
+def find_each(options = {})
+	rows = connection.execute <<-SQL
+	  SELECT #{columns.join ","} FROM #{table}
+	  LIMIT #(options[:batch_size]);
+	SQL
+
+	for row in rows_to_array(rows)
+		yield(row)
+end
+end
+
+def find_in_batches(options = {})
+	rows = connection.execute <<-SQL
+	  SELECT #{columns.join ","} FROM #{table}
+	  LIMIT #(options[:batch_size])
+	  OFFSET #(options[:start]);
+	SQL
+
+	for row in rows_to_array(rows)
+		yield(row)
+end
+end
 
 def take(num=1)
      if num > 1
@@ -56,6 +87,7 @@ def take_one
  
      init_object_from_row(row)
    end
+
 def first
      row = connection.get_first_row <<-SQL
        SELECT #{columns.join ","} FROM #{table}
