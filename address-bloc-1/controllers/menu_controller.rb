@@ -76,6 +76,7 @@ class MenuController
     puts "End of entries"
   end
 
+	
   def create_entry
     system "clear"
     puts "New AddressBloc Entry"

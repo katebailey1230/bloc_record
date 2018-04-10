@@ -11,12 +11,13 @@ class AddressBook < BlocRecord::Base
   end
 
   def add_entry(name, phone, email)
-    Entry.create(name: name, phone_number: phone, email: email, address_book_id: self.id)
+    Entry.create(name: name, phone_number: phone, email: email, address_book_id: self.id).order(name, phone: :desc)
   end
 	
   def entries
      Entry.where(address_book_id: self.id)
    end
+		
 	
   def find_entry(name)
      Entry.where(name: name, address_book_id: self.id).first
