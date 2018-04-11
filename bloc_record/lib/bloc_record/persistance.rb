@@ -42,6 +42,14 @@ def update_attributes(updates)
        update(nil, updates)
      end
 
+def method_missing(method, *args, &block)
+	if method == :update_name
+		update(:name, *args[i])
+	else method == :update_attribute
+		update_attribute(:attribute, *args[0])
+	end
+end
+
      def create(attrs)
        attrs = BlocRecord::Utility.convert_keys(attrs)
        attrs.delete "id"
