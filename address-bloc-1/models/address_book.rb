@@ -18,6 +18,9 @@ class AddressBook < BlocRecord::Base
      Entry.where(address_book_id: self.id)
    end
 		
+  def destroy_all(*args)
+	  @entries.where(*args).delete_entry
+  end  
 	
   def find_entry(name)
      Entry.where(name: name, address_book_id: self.id).first
