@@ -36,31 +36,49 @@ def find_by(attribute, value)
    end
 
 def method_missing(method, *args, &block)
-	if method == :find_by_name
-		find_by(:name, *args[i])
+	if method.match(find_by)
+		attribute = method.tr('find_by_', '')
+		value = *args[0]							 
+	else
+		find_by(attribute, value)							 					
 	end
 end
 
-def find_each(options = {})
-	rows = connection.execute <<-SQL
+def find_each(start=1, batch_size=nil)
+	if batch_size = nil
+	records = connection.execute <<-SQL
 	  SELECT #{columns.join ","} FROM #{table}
-	  LIMIT #(options[:batch_size]);
+	  OFFSET start;					   
 	SQL
-
-	for row in rows_to_array(rows)
-		yield(row)
+   else
+	records = connection.execute <<-SQL
+	  SELECT #{columns.join ","} FROM #{table}
+	LIMIT batch_size  
+	OFFSET start;								   	
+ 
+	for records.each do |record|
+		yield(record)							   
+		
 end
 end
 
-def find_in_batches(options = {})
-	rows = connection.execute <<-SQL
+def find_in_batches(start=1, batch_size=nil)
+	if batch_size = nil
+	records = connection.execute <<-SQL
 	  SELECT #{columns.join ","} FROM #{table}
-	  LIMIT #(options[:batch_size])
-	  OFFSET #(options[:start]);
+	  OFFSET start;					   
 	SQL
+   else
+    records = connection.execute(<<-SQL)
+        SELECT #{columns.join ","} FROM #{table}
+        LIMIT batch_size
+        OFFSET start;
+      SQL
+    end
 
-	for row in rows_to_array(rows)
-		yield(row)
+    yield(records)
+  end
+		
 end
 end
 
